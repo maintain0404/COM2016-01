@@ -5,6 +5,9 @@
         },
         {
             "path": "practice"
+        },
+        {
+            "path": "socket"
         }
     ],
     "settings": {
@@ -21,7 +24,10 @@
             "ms-python.python",
             "ms-python.vscode-pylance",
             "esbenp.prettier-vscode",
-            "bungcip.better-toml"
+            "bungcip.better-toml",
+            "eamodio.gitlens",
+            "visualstudioexptteam.vscodeintellicode",
+            "charliermarsh.ruff"
         ]
     }
 }
