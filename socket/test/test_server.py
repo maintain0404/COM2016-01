@@ -1,4 +1,4 @@
-from asyncio import Future, get_running_loop, Protocol, timeout, Transport
+from asyncio import Future, Protocol, Transport, get_running_loop, timeout
 from asyncio.subprocess import Process
 
 
@@ -61,24 +61,24 @@ async def test_server(host, port, server: Process):
             )
         )
 
-        # Wait to be connected
+        # Wait to be connected.
         await on_connected
 
-        # Wait to get server hello
+        # Wait for client to get server hello.
         await on_got_server_hello
 
-        # Wait to client say hello
+        # Wait for client to say hello.
         await on_say_client_hello
 
-        # Check message that server got
+        # Check message that server got.
         assert server.stdout is not None
         await server.stdout.readline() == b'Hello Server'
 
-        # Wait to client close
+        # Wait for client to be closed.
         await on_conn_lost
 
-        # wait server finished
+        # Wait for server to be finished.
         assert await server.wait() == 0
 
-        # Wait task finished
+        # Wait for task to be finished.
         await task

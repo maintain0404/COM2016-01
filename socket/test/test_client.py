@@ -1,4 +1,4 @@
-from asyncio import Future, get_running_loop, Protocol, timeout, Transport
+from asyncio import Future, Protocol, Transport, get_running_loop, timeout
 from asyncio.subprocess import Process
 
 
@@ -49,16 +49,16 @@ class TestingServerProtocol(Protocol):
 async def test_client(host, port, client_factory):
     loop = get_running_loop()
     on_connected = loop.create_future()
-    on_say_hello = loop.create_future()
-    on_got_hello = loop.create_future()
+    on_say_server_hello = loop.create_future()
+    on_got_client_hello = loop.create_future()
     on_finished = loop.create_future()
     on_conn_lost = loop.create_future()
 
     server = await loop.create_server(
         lambda: TestingServerProtocol(
             on_connected=on_connected,
-            on_say_hello=on_say_hello,
-            on_got_hello=on_got_hello,
+            on_say_server_hello=on_say_server_hello,
+            on_got_client_hello=on_got_client_hello,
             on_finished=on_finished,
             on_conn_lost=on_conn_lost
         ),
@@ -69,26 +69,26 @@ async def test_client(host, port, client_factory):
         async with server:
             await server.start_serving()
             client: Process = await client_factory()
-            # Wait to be connected
+            # Wait to be connected.
             await on_connected
 
-            # Wait server say hello
-            await on_say_hello
+            # Wait for server to say hello.
+            await on_say_server_hello
 
-            # Check message that client got
+            # Check message that client got.
             assert client.stdout is not None
             assert await client.stdout.readline() == b'Hello Client'
 
-            # Wait server got hello(client sends)
-            await on_got_hello
+            # Wait for server to get hello that client sends.
+            await on_got_client_hello
 
-            # Wait client ends
+            # Wait for client to be finished.
             assert await client.wait() == 0
 
-            # Wait to server finished
+            # Wait for server to be finished.
             await on_finished
 
-            # Wait to connection lost
+            # Wait for server to connection lost.
             await on_conn_lost
 
             server.close()
