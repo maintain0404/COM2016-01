@@ -14,18 +14,27 @@
         // editor
         "editor.formatOnSave": true,
         "editor.tabSize": 4,
-        
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        },
+
         // terminal
         "terminal.integrated.defaultProfile.linux": "zsh",
         "terminal.integrated.defaultProfile.osx": "zsh",
-        
+
         // python
         "python.poetryPath": "poetry",
-        "python.testing.pytestArgs": [
-            "${workspaceFolder}/test"
-        ],
+        "python.testing.pytestArgs": ["${workspaceFolder}/test"],
         "python.testing.unittestEnabled": false,
         "python.testing.pytestEnabled": true,
+        "python.analysis.autoImportCompletions": true,
+        "python.analysis.inlayHints.pytestParameters": true,
+        "python.analysis.inlayHints.functionReturnTypes": true,
+        "python.analysis.inlayHints.variableTypes": true,
+        "python.analysis.fixAll": [
+            "source.convertImportFormat",
+            "source.unusedImports"
+        ]
     },
     "extensions": {
         "recommendations": [
