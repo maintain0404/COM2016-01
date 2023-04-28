@@ -1,0 +1,8 @@
+{
+    "python.poetryPath": "poetry",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "terminal.integrated.defaultProfile.linux": "zsh",
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4
+}
