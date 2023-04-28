@@ -11,12 +11,21 @@
         }
     ],
     "settings": {
-        "python.poetryPath": "poetry",
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        // editor
+        "editor.formatOnSave": true,
+        "editor.tabSize": 4,
+        
+        // terminal
         "terminal.integrated.defaultProfile.linux": "zsh",
         "terminal.integrated.defaultProfile.osx": "zsh",
-        "editor.formatOnSave": true,
-        "editor.tabSize": 4
+        
+        // python
+        "python.poetryPath": "poetry",
+        "python.testing.pytestArgs": [
+            "${workspaceFolder}/test"
+        ],
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestEnabled": true,
     },
     "extensions": {
         "recommendations": [
