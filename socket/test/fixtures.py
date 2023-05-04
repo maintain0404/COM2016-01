@@ -13,7 +13,7 @@ def host() -> str:
 
 @pytest.fixture
 def port(unused_tcp_port) -> int:
-    return unused_tcp_port
+    return 9999
 
 
 @pytest.fixture
@@ -23,7 +23,7 @@ def client_binary_path(pytestconfig: pytest.Config) -> str:
 
 @pytest.fixture
 def server_binary_path(pytestconfig: pytest.Config) -> str:
-    return str(Path(pytestconfig.invocation_params.dir) / 'bin' / 'server')
+    return str(Path(pytestconfig.invocation_params.dir) / 'bin' / 'server.dbg')
 
 
 @pytest.fixture

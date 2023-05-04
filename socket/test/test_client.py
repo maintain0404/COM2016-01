@@ -1,4 +1,4 @@
-from asyncio import Future, Protocol, Transport, get_running_loop, timeout
+from asyncio import Future, Protocol, Transport, get_running_loop, wait_for
 from asyncio.subprocess import Process
 
 
@@ -65,31 +65,30 @@ async def test_client(host, port, client_factory):
         host, port
     )
 
-    async with timeout(5):
-        async with server:
-            await server.start_serving()
-            client: Process = await client_factory()
-            # Wait to be connected.
-            await on_connected
+    async with server:
+        await wait_for(server.start_serving(), 1.0)
+        client: Process = await client_factory()
+        # Wait to be connected.
+        await wait_for(on_connected, 1.0)
 
-            # Wait for server to say hello.
-            await on_say_server_hello
+        # Wait for server to say hello.
+        await wait_for(on_say_server_hello, 1.0)
 
-            # Check message that client got.
-            assert client.stdout is not None
-            assert await client.stdout.readline() == b'Hello Client'
+        # Check message that client got.
+        assert client.stdout is not None
+        assert await client.stdout.readline() == b'Hello Client'
 
-            # Wait for server to get hello that client sends.
-            await on_got_client_hello
+        # Wait for server to get hello that client sends.
+        await wait_for(on_got_client_hello, 1.0)
 
-            # Wait for client to be finished.
-            assert await client.wait() == 0
+        # Wait for client to be finished.
+        assert await client.wait() == 0
 
-            # Wait for server to be finished.
-            await on_finished
+        # Wait for server to be finished.
+        await wait_for(on_finished, 1.0)
 
-            # Wait for server to connection lost.
-            await on_conn_lost
+        # Wait for server to connection lost.
+        await wait_for(on_conn_lost, 1.0)
 
-            server.close()
-            await server.wait_closed()
+        server.close()
+        await wait_for(server.wait_closed(), 1.0)

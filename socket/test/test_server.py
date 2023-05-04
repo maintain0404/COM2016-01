@@ -1,4 +1,4 @@
-from asyncio import Future, Protocol, Transport, get_running_loop, timeout
+from asyncio import Future, Protocol, Transport, get_running_loop, wait_for
 from asyncio.subprocess import Process
 
 
@@ -47,38 +47,36 @@ async def test_server(host, port, server: Process):
     on_say_client_hello = loop.create_future()
     on_conn_lost = loop.create_future()
 
-    async with timeout(5):
-
-        task = loop.create_task(
-            loop.create_connection(
-                lambda: TestingClientProtocol(
-                    on_connected=on_connected,
-                    on_got_server_hello=on_got_server_hello,
-                    on_say_client_hello=on_say_client_hello,
-                    on_conn_lost=on_conn_lost
-                ),
-                host=host, port=port
-            )
+    task = loop.create_task(
+        loop.create_connection(
+            lambda: TestingClientProtocol(
+                on_connected=on_connected,
+                on_got_server_hello=on_got_server_hello,
+                on_say_client_hello=on_say_client_hello,
+                on_conn_lost=on_conn_lost
+            ),
+            host=host, port=port
         )
+    )
 
-        # Wait to be connected.
-        await on_connected
+    # Wait to be connected.
+    await wait_for(on_connected, 1.0)
 
-        # Wait for client to get server hello.
-        await on_got_server_hello
+    # Wait for client to get server hello.
+    await wait_for(on_got_server_hello, 1.0)
 
-        # Wait for client to say hello.
-        await on_say_client_hello
+    # Wait for client to say hello.
+    await wait_for(on_say_client_hello, 1.0)
 
-        # Check message that server got.
-        assert server.stdout is not None
-        await server.stdout.readline() == b'Hello Server'
+    # Check message that server got.
+    assert server.stdout is not None
+    await server.stdout.readline() == b'Hello Server'
 
-        # Wait for client to be closed.
-        await on_conn_lost
+    # Wait for client to be closed.
+    await wait_for(on_conn_lost, 1.0)
 
-        # Wait for server to be finished.
-        assert await server.wait() == 0
+    # Wait for server to be finished.
+    assert await server.wait() == 0
 
-        # Wait for task to be finished.
-        await task
+    # Wait for task to be finished.
+    await wait_for(task, 1.0)
