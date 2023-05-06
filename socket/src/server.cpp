@@ -8,23 +8,21 @@
 #include <thread>
 #include <tuple>
 
-#define MAX_CONNECTION 5
-#define MAX_EVENTS 10
+#define MAX_CONNECTION 1
+#define MAX_EVENTS 1
 
-char *message = "Hello Client\n";
+std::string MESSAGE = "Hello Client! 👋";
 
 int startListening(int port)
 {
     int server_socket;
-    struct sockaddr_in server_addr
-    {
-    };
+    struct sockaddr_in server_addr;
 
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
     // Opening Socket Failed
     if (server_socket < 0)
     {
-        EXIT_WITH_CRITICAL("Error in creating socket.");
+        EXIT_WITH_LOG_CRITICAL("Error in creating socket.");
     }
 
     // Bind Address
@@ -35,13 +33,13 @@ int startListening(int port)
     // Bind socket
     if (bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
-        EXIT_WITH_CRITICAL("Error in binding socket.")
+        EXIT_WITH_LOG_CRITICAL("Error in binding socket.")
     }
 
     // Listen for incoming connections
     if (listen(server_socket, MAX_CONNECTION) < 0)
     {
-        EXIT_WITH_CRITICAL("Error in listening socket")
+        EXIT_WITH_LOG_CRITICAL("Error in listening socket")
     }
 
     return server_socket;
@@ -56,7 +54,7 @@ std::tuple<int, epoll_event> registerEpoll(int server_socket)
     epoll_fd = epoll_create1(0);
     if (epoll_fd < 0)
     {
-        EXIT_WITH_CRITICAL("Error in attaching io events.")
+        EXIT_WITH_LOG_CRITICAL("Error in attaching io events.")
     }
 
     event.events = EPOLLIN;
@@ -64,35 +62,35 @@ std::tuple<int, epoll_event> registerEpoll(int server_socket)
 
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_socket, &event) < 0)
     {
-        EXIT_WITH_CRITICAL("Error in handling io events.")
+        EXIT_WITH_LOG_CRITICAL("Error in handling io events.")
     }
 
     return std::make_tuple(epoll_fd, event);
 }
 
-int handleConn(int socket)
+void handleConn(int socket)
 {
     char buffer[1024] = {0};
-    while (true)
+    if (send(socket, MESSAGE.c_str(), MESSAGE.length(), 0) < 0)
     {
-        int valRead = recv(socket, buffer, 1024, MSG_PEEK);
-        if (valRead == 0)
-        {
-            LOG_ERROR("Client disconnected")
-            break;
-        }
-        else if (valRead < 0)
-        {
-            EXIT_WITH_CRITICAL("Error in reading from client")
-            break;
-        }
-        std::cout << "Received message from client: " << buffer << std::endl;
-        send(socket, message, strlen(message), 0);
-        memset(buffer, 0, 1024);
+        EXIT_WITH_LOG_CRITICAL("Error in sending data to client")
     }
-    close(socket);
+    LOG_INFO("Send message suceed.")
 
-    return 0;
+    int valRead = recv(socket, buffer, 1024, 0);
+    if (valRead == 0)
+    {
+        EXIT_WITH_LOG_CRITICAL("Client disconnected")
+    }
+    else if (valRead < 0)
+    {
+        EXIT_WITH_LOG_CRITICAL("Error in reading from client")
+    }
+    std::cout << "Received message from client: " << buffer << std::endl;
+
+    close(socket);
+    LOG_INFO("Finished");
+    exit(EXIT_SUCCESS);
 }
 
 int runServer(int port)
@@ -100,7 +98,7 @@ int runServer(int port)
     int event_count, server_socket, client_socket;
     struct sockaddr client_addr;
     socklen_t client_sz = sizeof(client_addr);
-    epoll_event events[64];
+    epoll_event events[MAX_EVENTS];
 
     server_socket = startListening(port);
     auto [epoll_fd, event] = registerEpoll(server_socket);
@@ -112,7 +110,7 @@ int runServer(int port)
         event_count = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
         if (event_count < 0)
         {
-            EXIT_WITH_CRITICAL("Error in waiting for io events")
+            EXIT_WITH_LOG_CRITICAL("Error in waiting for io events")
         }
 
         for (int i = 0; i < event_count; i++)
@@ -122,22 +120,13 @@ int runServer(int port)
                 client_socket = accept(server_socket, (struct sockaddr *)&client_addr, &client_sz);
                 if (client_socket < 0)
                 {
-                    EXIT_WITH_CRITICAL("Error in accepting new connection.")
+                    EXIT_WITH_LOG_CRITICAL("Error in accepting new connection.")
                     continue;
                 }
                 LOG_INFO("New client connected.")
-                event.events = EPOLLIN | EPOLLET;
-                event.data.fd = client_socket;
 
-                if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_socket, &event) < 0)
-                {
-                    EXIT_WITH_CRITICAL("Error in adding client socket to epoll instance")
-                    continue;
-                }
-            }
-            else
-            {
-                std::thread(handleConn, events[i].data.fd).detach();
+                handleConn(client_socket);
+                break;
             }
         }
     };
@@ -148,7 +137,7 @@ int runServer(int port)
 }
 
 #ifdef COMPILE_MAIN
-int main()
+int main(int argc, char *argv[])
 {
     runServer(9999);
 }

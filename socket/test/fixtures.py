@@ -1,6 +1,7 @@
 from asyncio import create_subprocess_exec
 from asyncio.subprocess import Process
 from pathlib import Path
+from subprocess import PIPE
 from typing import Callable, Coroutine
 
 import pytest
@@ -18,7 +19,7 @@ def port(unused_tcp_port) -> int:
 
 @pytest.fixture
 def client_binary_path(pytestconfig: pytest.Config) -> str:
-    return str(Path(pytestconfig.invocation_params.dir) / 'bin' / 'client')
+    return str(Path(pytestconfig.invocation_params.dir) / 'bin' / 'client.dbg')
 
 
 @pytest.fixture
@@ -38,5 +39,6 @@ def client_factory(
 @pytest.fixture
 async def server(server_binary_path, host, port) -> Process:
     return await create_subprocess_exec(
-        server_binary_path, "--host", host, "--port", str(port)
+        server_binary_path, "--host", host, "--port", str(port),
+        stdout=PIPE
     )

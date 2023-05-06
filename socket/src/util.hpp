@@ -22,15 +22,22 @@ int LOG_LEVEL = TRACE;
                   << " " << msg << std::endl; \
     }
 
+#define PRINT(level, msg, __VA_ARGS__...)                                                           \
+    if (level >= LOG_LEVEL)                                                                         \
+    {                                                                                               \
+        printf("[%s]  %s", #level, msg);                                                            \
+        std::cout << std::format("[{}]  {}", #level, std::format(msg, ##__VA_ARGS__)) << std::endl; \
+    }
+
 #ifdef COMPILE_DEBUG
 #define EXIT exit(EXIT_FAILURE);
 #else
 #define EXIT ;
 #endif
 
-#define EXIT_WITH_CRITICAL(msg)    \
-    LOG(CRITICAL, msg)             \
-    LOG(CRITICAL, strerror(errno)) \
+#define EXIT_WITH_LOG_CRITICAL(msg) \
+    LOG(CRITICAL, msg)              \
+    LOG(CRITICAL, strerror(errno))  \
     EXIT
 
 #define LOG_TRACE(msg) \

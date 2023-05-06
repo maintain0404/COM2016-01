@@ -26,3 +26,11 @@ add_executable(server.dbg src/server.cpp)
 target_link_libraries(server.dbg stdc++)
 target_compile_options(server.dbg PUBLIC -g)
 
+
+add_executable(client src/client.cpp)
+target_link_libraries(client stdc++)
+target_compile_options(client PUBLIC -DCOMPILE_MAIN)
+
+add_executable(client.dbg src/client.cpp)
+target_link_libraries(client.dbg stdc++)
+target_compile_options(client.dbg PUBLIC -g)

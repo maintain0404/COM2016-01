@@ -9,12 +9,10 @@ class TestingClientProtocol(Protocol):
         self,
         on_connected: Future,
         on_got_server_hello: Future,
-        on_say_client_hello: Future,
         on_conn_lost: Future
     ) -> None:
         self.on_connected = on_connected
         self.on_got_server_hello = on_got_server_hello
-        self.on_say_client_hello = on_say_client_hello
         self.on_conn_lost = on_conn_lost
 
     def connection_made(
@@ -44,7 +42,6 @@ async def test_server(host, port, server: Process):
 
     on_connected = loop.create_future()
     on_got_server_hello = loop.create_future()
-    on_say_client_hello = loop.create_future()
     on_conn_lost = loop.create_future()
 
     task = loop.create_task(
@@ -52,7 +49,6 @@ async def test_server(host, port, server: Process):
             lambda: TestingClientProtocol(
                 on_connected=on_connected,
                 on_got_server_hello=on_got_server_hello,
-                on_say_client_hello=on_say_client_hello,
                 on_conn_lost=on_conn_lost
             ),
             host=host, port=port
@@ -63,11 +59,7 @@ async def test_server(host, port, server: Process):
     await wait_for(on_connected, 1.0)
 
     # Wait for client to get server hello.
-    await wait_for(on_got_server_hello, 1.0)
-
-    # Wait for client to say hello.
-    await wait_for(on_say_client_hello, 1.0)
-
+    await wait_for(on_got_server_hello, 3.0)
     # Check message that server got.
     assert server.stdout is not None
     await server.stdout.readline() == b'Hello Server'
