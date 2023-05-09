@@ -8,8 +8,6 @@
 #include <tuple>
 #include "util.hpp"
 
-#define SERVER_HOST "127.0.0.1"
-
 std::string MESSAGE = "Hello Server! 👋";
 
 void waitHello(int socket)
@@ -33,14 +31,7 @@ void sendHello(int socket)
         EXIT_WITH_LOG_CRITICAL("Error in sending data to server");
     }
     close(socket);
-    LOG_INFO("Close connection.");
-}
-
-std::tuple<int, epoll_event> registerEpoll(int socket)
-{
-    epoll_event event;
-    int epoll_fd;
-    return std::make_tuple(epoll_fd, event);
+    LOG_INFO("Finished.");
 }
 
 int connectServer(sockaddr_in *server_addr)
@@ -67,9 +58,10 @@ int runClient(std::string address, int port)
     server_addr.sin_addr.s_addr = inet_addr(address.c_str());
     server_addr.sin_port = htons(port);
 
-    if (inet_pton(AF_INET, SERVER_HOST, &server_addr.sin_addr) <= 0)
+    if (inet_pton(AF_INET, address.c_str(), &server_addr.sin_addr) <= 0)
     {
-        EXIT_WITH_LOG_CRITICAL("Error in converting server address")
+        LOG_ERROR("Error in converting server address")
+        EXIT
     }
 
     socket_fd = connectServer(&server_addr);
@@ -78,9 +70,21 @@ int runClient(std::string address, int port)
     close(socket_fd);
 }
 
-#ifdef COMPILE_MAIN
-int main()
+int main(int argc, char *argv[])
 {
-    runClient("127.0.0.1", 9999);
+    if (argc != 3)
+    {
+        LOG_ERROR(
+            "Invalid arguments. \n"
+            "Use like sample below\n\n"
+            "client [HOST] [PORT]")
+        EXIT
+    }
+    auto port = atoi(argv[2]);
+    if (port <= 1 || port >= 65536)
+    {
+        LOG_ERROR("Invalid ports. Use port between 1 to 65535")
+        EXIT
+    }
+    runClient(argv[1], port);
 }
-#endif

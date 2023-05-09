@@ -75,7 +75,7 @@ void handleConn(int socket)
     {
         EXIT_WITH_LOG_CRITICAL("Error in sending data to client")
     }
-    LOG_INFO("Send message suceed.")
+    LOG_INFO("Send hello message succeed.")
 
     int valRead = recv(socket, buffer, 1024, 0);
     if (valRead == 0)
@@ -136,9 +136,22 @@ int runServer(int port)
     return 0;
 }
 
-#ifdef COMPILE_MAIN
 int main(int argc, char *argv[])
 {
-    runServer(9999);
+    if (argc != 2)
+    {
+        LOG_ERROR(
+            "Invalid arguments. \n"
+            "Use like sample below\n\n"
+            "server [PORT]")
+        EXIT
+    }
+    auto port = atoi(argv[1]);
+    if (port <= 1 || port >= 65536)
+    {
+        LOG_ERROR("Invalid ports. Use port between 1 to 65535")
+        EXIT
+    }
+
+    runServer(port);
 }
-#endif
