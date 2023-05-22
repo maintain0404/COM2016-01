@@ -1,4 +1,4 @@
-from asyncio import Future, Protocol, Transport, get_running_loop, wait_for
+from asyncio import Future, get_running_loop, Protocol, Transport, wait_for
 from asyncio.subprocess import Process
 
 
