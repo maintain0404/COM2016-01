@@ -8,6 +8,9 @@
         },
         {
             "path": "socket"
+        },
+        {
+            "path": "term"
         }
     ],
     "settings": {
@@ -34,7 +37,89 @@
         "python.analysis.fixAll": [
             "source.convertImportFormat",
             "source.unusedImports"
-        ]
+        ],
+        "files.associations": {
+            "optional": "cpp",
+            "any": "cpp",
+            "array": "cpp",
+            "atomic": "cpp",
+            "hash_map": "cpp",
+            "bit": "cpp",
+            "*.tcc": "cpp",
+            "cctype": "cpp",
+            "chrono": "cpp",
+            "clocale": "cpp",
+            "cmath": "cpp",
+            "compare": "cpp",
+            "concepts": "cpp",
+            "cstdarg": "cpp",
+            "cstddef": "cpp",
+            "cstdint": "cpp",
+            "cstdio": "cpp",
+            "cstdlib": "cpp",
+            "cstring": "cpp",
+            "ctime": "cpp",
+            "cwchar": "cpp",
+            "cwctype": "cpp",
+            "deque": "cpp",
+            "list": "cpp",
+            "map": "cpp",
+            "string": "cpp",
+            "unordered_map": "cpp",
+            "vector": "cpp",
+            "exception": "cpp",
+            "algorithm": "cpp",
+            "functional": "cpp",
+            "iterator": "cpp",
+            "memory": "cpp",
+            "memory_resource": "cpp",
+            "numeric": "cpp",
+            "random": "cpp",
+            "ratio": "cpp",
+            "string_view": "cpp",
+            "system_error": "cpp",
+            "tuple": "cpp",
+            "type_traits": "cpp",
+            "utility": "cpp",
+            "initializer_list": "cpp",
+            "iosfwd": "cpp",
+            "iostream": "cpp",
+            "istream": "cpp",
+            "limits": "cpp",
+            "new": "cpp",
+            "numbers": "cpp",
+            "ostream": "cpp",
+            "semaphore": "cpp",
+            "sstream": "cpp",
+            "stdexcept": "cpp",
+            "stop_token": "cpp",
+            "streambuf": "cpp",
+            "thread": "cpp",
+            "cinttypes": "cpp",
+            "typeinfo": "cpp"
+        },
+        "editor.tokenColorCustomizations": {
+            "textMateRules": [
+                {
+                    "scope": "googletest.failed",
+                    "settings": {
+                        "foreground": "#f00"
+                    }
+                },
+                {
+                    "scope": "googletest.passed",
+                    "settings": {
+                        "foreground": "#0f0"
+                    }
+                },
+                {
+                    "scope": "googletest.run",
+                    "settings": {
+                        "foreground": "#0f0"
+                    }
+                }
+            ]
+        }
     },
     "extensions": {
         "recommendations": [
