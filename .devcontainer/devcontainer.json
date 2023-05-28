@@ -14,7 +14,10 @@
             "packages": "build-essential",
             "ppas": "ppa:deadsnakes/ppa"
         },
-        "ghcr.io/devcontainers-contrib/features/poetry:2": {}
+        "ghcr.io/devcontainers-contrib/features/poetry:2": {},
+        "ghcr.io/devcontainers/features/go:1": {},
+        "ghcr.io/balazs23/devcontainers-features/bazel:1": {}
+
     }
 
     // Features to add to the dev container. More info: https://containers.dev/features.

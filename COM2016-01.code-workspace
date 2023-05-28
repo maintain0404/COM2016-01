@@ -1,9 +1,6 @@
 {
     "folders": [
         {
-            "path": "."
-        },
-        {
             "path": "practice"
         },
         {
@@ -28,8 +25,9 @@
         // python
         "python.poetryPath": "poetry",
         "python.testing.pytestArgs": ["${workspaceFolder}/test"],
+        "python.testing.autoTestDiscoverOnSaveEnabled": false,
         "python.testing.unittestEnabled": false,
-        "python.testing.pytestEnabled": true,
+        "python.testing.pytestEnabled": false,
         "python.analysis.autoImportCompletions": true,
         "python.analysis.inlayHints.pytestParameters": true,
         "python.analysis.inlayHints.functionReturnTypes": true,
@@ -96,7 +94,13 @@
             "streambuf": "cpp",
             "thread": "cpp",
             "cinttypes": "cpp",
-            "typeinfo": "cpp"
+            "typeinfo": "cpp",
+            "bitset": "cpp",
+            "set": "cpp",
+            "unordered_set": "cpp",
+            "regex": "cpp",
+            "fstream": "cpp",
+            "variant": "cpp"
         },
         "editor.tokenColorCustomizations": {
             "textMateRules": [
@@ -130,7 +134,11 @@
             "bungcip.better-toml",
             "eamodio.gitlens",
             "visualstudioexptteam.vscodeintellicode",
-            "charliermarsh.ruff"
+            "charliermarsh.ruff",
+            "bazelbuild.vscode-bazel",
+            "llvm-vs-code-extensions.vscode-clangd",
+            "ms-vscode.test-adapter-converter",
+            "matepek.vscode-catch2-test-adapter"
         ]
     }
 }
