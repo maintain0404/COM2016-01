@@ -7,7 +7,8 @@ This is repository for the lecture SKKU Linux System(COM2016-01) source codes.
 ### Compile
 
 1. Ubuntu 22.04
-2. gcc 11.3.0
+2. Linux Kernel 5.15 
+3. gcc 11.3.0
 
 ### Develop and Testing
 
