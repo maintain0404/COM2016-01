@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label" :"Build server",
+            "type": "shell",
+            "command": "bazel build -c dbg --sandbox_debug \"//src/server:server\""
+        },
+        {
+            "label": "Build client",
+            "type": "shell",
+            "command": "bazel build -c dbg --sandbox_debug \"//src/client:client\""
+        }
+    ]
+}

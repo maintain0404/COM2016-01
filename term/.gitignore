@@ -28,3 +28,7 @@ _deps
 /compile_commands.json
 # Ignore the directory in which `clangd` stores its local index.
 /.cache/
+linux*/*
+linux*/.*
+!linux*/kernel/mychat.c
+!linux*/arch/arm/tools/syscall.tbl
