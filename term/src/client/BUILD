@@ -1,11 +1,12 @@
 cc_binary(
     name = "client",
     srcs = [
-        'client.cpp'
+        "client.cpp",
     ],
     deps = [
-        "//src/logging:logging",
-        "//src/mychat:mychat",
-        "//src/protocol:packet"
-    ]
+        "//src/cli:parser",
+        "//src/logging",
+        "//src/mychat",
+        "//src/protocol:packet",
+    ],
 )

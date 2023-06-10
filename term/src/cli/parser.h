@@ -2,6 +2,7 @@
 #include "src/cli/token.h"
 #include <algorithm>
 #include <any>
+#include <iostream>
 #include <iterator>
 #include <queue>
 #include <unordered_map>
@@ -9,11 +10,10 @@
 #include <vector>
 
 enum ParsingState {
-  NONE,               // Nothing parsed
-  READY,              // Finished to parsing command name
-  ENTER_VALUE_OPT,    // Need value
-  REQUIRED_ARGUMENTS, // Parsing arguments. Do not allow any options more.
-  MULTIPLE_ARGUMENTS  // Parsing arguments.
+  NONE,            // Nothing parsed
+  READY,           // Finished to parsing command name
+  ENTER_VALUE_OPT, // Need value
+  ARGUMENTS,       // Parsing arguments.
 };
 
 enum TokenType {
@@ -30,12 +30,58 @@ private:
   std::unordered_map<ShortOptName, IOption *> _short_name_map;
   std::unordered_map<OptName, IOption *> _long_name_map;
   std::unordered_map<OptName, OptValue> _value_map;
-  std::queue<std::string> arguments;
+  std::vector<std::string> arg_values;
+  std::vector<Argument> arguments;
   std::string command;
   bool is_parsed;
 
+  std::string buildHelpText() {
+    std::string txt = this->command;
+
+    // Arguments example line
+
+    for (auto aiter = this->arguments.begin(); aiter < this->arguments.end();
+         aiter++) {
+      txt += std::string(" [") + aiter->name + "]";
+    }
+
+    if (!this->arguments.empty()) {
+      txt += "\n\nArguments:\n";
+
+      // Arguments help lines
+      for (auto aiter = this->arguments.begin(); aiter < this->arguments.end();
+           aiter++) {
+        // clang-format off
+        txt += std::string("  ") + aiter->name +
+               std::string(20 - aiter->name.size(), ' ') + 
+               "(required) " +
+               aiter->help + "\n";
+        // clang-format on
+      }
+    }
+
+    if (!this->_long_name_map.empty()) {
+      txt += "\n\nOptions:\n";
+
+      // Options lines
+      for (auto oiter = this->_long_name_map.begin();
+           oiter != this->_long_name_map.end(); oiter++) {
+        txt += std::string("  --") + oiter->second->name +
+               std::string(18 - oiter->second->name.size(), ' ') +
+               oiter->second->help + "\n";
+        if (oiter->second->short_name.has_value()) {
+          txt += std::string("  -") + oiter->second->short_name.value() +
+                 std::string(17, ' ') + " short version of option --" +
+                 oiter->second->name + "\n";
+        }
+      }
+    }
+    txt += "\n";
+    return txt;
+  };
+
 public:
-  Parser() : is_parsed(false){};
+  Parser(std::string command) : command(command), is_parsed(false){};
 
   void addOption(IOption *option) {
     if (option->short_name.has_value()) {
@@ -53,6 +99,8 @@ public:
     }
     this->_long_name_map.insert(std::make_pair(option->name, option));
   }
+
+  void addArgument(Argument *arg) { this->arguments.push_back(*arg); }
 
   void run(int argc, char *argv[]) {
     if (is_parsed) {
@@ -94,34 +142,34 @@ public:
             continue;
           }
           case VALUE_: {
-            arguments.push(token);
-            state = ParsingState::REQUIRED_ARGUMENTS;
+            arg_values.push_back(token);
+            state = ParsingState::ARGUMENTS;
             continue;
           }
           }
           continue;
         }
         case ENTER_VALUE_OPT: {
-          this->_value_map.find(current_option->name)->second =
-              std::optional(token);
+          this->_value_map.find(current_option->name)->second = token;
           continue;
         }
         // NOT READY TO USE
-        case REQUIRED_ARGUMENTS: {
-          arguments.push(token);
-          continue;
-        }
-        // NOT READY TO USE
-        case MULTIPLE_ARGUMENTS: {
-          arguments.push(token);
+        case ARGUMENTS: {
+          arg_values.push_back(token);
           continue;
         }
         }
       }
     } catch (ParserError &e) {
-      throw;
+      std::cout << this->buildHelpText();
+      // exit(-1);
     }
     is_parsed = true;
+
+    if (this->arguments.size() != this->arg_values.size()) {
+      std::cout << this->buildHelpText();
+      // exit(-1);
+    }
   };
 
   OptValue getValue(OptName name) {
@@ -181,5 +229,17 @@ public:
       throw OptionNotExistsError();
     }
     return iter->second;
+  }
+
+  std::string getArgumentValue(std::string name) {
+    int cnt = 0;
+    for (auto iter = this->arguments.begin(); iter < this->arguments.end();
+         iter++) {
+      if (iter->name == name) {
+        return this->arg_values.at(cnt);
+      }
+      cnt++;
+    }
+    throw OptionNotExistsError();
   }
 };

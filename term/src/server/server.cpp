@@ -1,3 +1,4 @@
+#include "src/cli/parser.h"
 #include "src/logging/logging.hpp"
 #include "src/mychat/mychat.hpp"
 #include "src/protocol/protocol.hpp"
@@ -281,4 +282,36 @@ public:
 
 Server *Server::globalInteruptHandler = nullptr;
 
-int main(int argc, char **argv) { Server(9999, 99, 99).runServer(); }
+int main(int argc, char **argv) {
+  auto p = Parser("server");
+  auto arg = Argument();
+  auto logopt = CounterOption("set log level maximum 3 times", "verbose", 'v',
+                              "GROUP", 3);
+  p.addOption(&logopt);
+  auto portopt = StringOption("port to serve. default to 9999", "port", 'p',
+                              "GROUP", std::string("9999"));
+  p.addOption(&portopt);
+  auto connopt =
+      StringOption("maximum connection. defualts to 99", "max-connection", 'm',
+                   "GROUP", std::string("99"));
+  p.addOption(&connopt);
+
+  p.run(argc, argv);
+
+  int lv = std::any_cast<int>(p.getValue("verbose"));
+  if (lv == 2) {
+    _LOG_LEVEL = TRACE;
+  } else if (lv == 1) {
+    _LOG_LEVEL = DEBUG;
+  } else {
+    _LOG_LEVEL = INFO;
+  }
+
+  // clang-format off
+  Server(
+    std::stoi(std::any_cast<std::string>(p.getValue("port"))),
+    std::stoi(std::any_cast<std::string>(p.getValue("max-connection"))),
+    std::stoi(std::any_cast<std::string>(p.getValue("max-connection"))))
+  .runServer();
+  // clang-format on
+}

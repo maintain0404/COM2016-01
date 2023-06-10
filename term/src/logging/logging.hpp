@@ -16,40 +16,40 @@
 
 int _LOG_LEVEL = TRACE;
 
-inline const char * log_header_msg(int level) {
+inline const char *log_header_msg(int level) {
   switch (level) {
-    // TRACE, white
-    case TRACE: {
-        return "TRACE: ";
-    };
-    // DEBUG, cyan
-    case DEBUG: {
-        return "\033[0;36mDEBUG: \033[0m";
-    };
-    // INFO, green
-    case INFO: {
-        return "\033[0;32mINFO: \033[0m";
-    };
-    // WARN, yellow
-    case WARN: {
-        return "\033[0;31mWARN: \033[0m";
-    };
-    // ERROR, red
-    case ERROR: {
-        return "\033[0;31mERROR: \033[0m";
-    }
-    // CRITICAL, red, bold
-    case CRITICAL: {
-        return "\033[1;31mCRITICAL: \033[0m";
-    }
-    default: {
-        return "";
-    };
+  // TRACE, white
+  case TRACE: {
+    return "TRACE: ";
+  };
+  // DEBUG, cyan
+  case DEBUG: {
+    return "\033[0;36mDEBUG: \033[0m";
+  };
+  // INFO, green
+  case INFO: {
+    return "\033[0;32mINFO: \033[0m";
+  };
+  // WARN, yellow
+  case WARN: {
+    return "\033[0;31mWARN: \033[0m";
+  };
+  // ERROR, red
+  case ERROR: {
+    return "\033[0;31mERROR: \033[0m";
+  }
+  // CRITICAL, red, bold
+  case CRITICAL: {
+    return "\033[1;31mCRITICAL: \033[0m";
+  }
+  default: {
+    return "";
+  };
   };
 }
 
 inline void log(int level, std::string msg) {
-  if (level > _LOG_LEVEL) {
+  if (level >= _LOG_LEVEL) {
     std::string logmsg = log_header_msg(level) + msg;
     std::cout << logmsg << std::endl;
   }

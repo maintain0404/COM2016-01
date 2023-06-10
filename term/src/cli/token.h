@@ -92,7 +92,7 @@ public:
     return v;
   }
   bool isMultiple() { return true; };
-  inline std::any getDefault() { return 0; };
+  inline std::any getDefault() { return (int)0; };
 };
 
 // ----------------ValueOption-----------------
@@ -115,7 +115,7 @@ public:
 
 class StringOption : public IValueOption {
 public:
-  typedef std::optional<std::string> ValueType;
+  typedef std::string ValueType;
 
   std::optional<ValueType> default_value;
   std::optional<std::function<ValueType()>> default_factory;
@@ -140,4 +140,11 @@ public:
       return this->default_factory.value()();
     }
   }
+};
+
+// ----------------Argument-----------------
+class Argument : public IToken {
+public:
+  Argument(){};
+  Argument(std::string name, std::string help) : IToken(name, help){};
 };

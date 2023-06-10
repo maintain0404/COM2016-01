@@ -1,8 +1,10 @@
+#include "src/cli/parser.h"
 #include "src/logging/logging.hpp"
 #include "src/mychat/mychat.hpp"
 #include "src/protocol/packet.hpp"
 #include "src/protocol/protocol.hpp"
 #include <arpa/inet.h>
+#include <cstddef>
 #include <cstring>
 #include <error.h>
 #include <fcntl.h>
@@ -122,17 +124,32 @@ void runClient(std::string address, int port, std::string name) {
 }
 
 int main(int argc, char *argv[]) {
-  if (argc != 4) {
-    LOG_ERROR("Invalid arguments. \n"
-              "Use like sample below\n\n"
-              "client [HOST] [PORT]")
-    EXIT
+  auto p = Parser("client");
+  auto arg = Argument();
+  auto opt =
+      CounterOption("set log level", "verbose", std::optional('v'), "GROUP", 3);
+  p.addOption(&opt);
+
+  arg = Argument("host", "server ip to connect");
+  p.addArgument(&arg);
+
+  arg = Argument("port", "server port to connect");
+  p.addArgument(&arg);
+
+  arg = Argument("name", "name to use in chatting");
+  p.addArgument(&arg);
+
+  p.run(argc, argv);
+
+  int lv = std::any_cast<int>(p.getValue("verbose"));
+  if (lv == 2) {
+    _LOG_LEVEL = TRACE;
+  } else if (lv == 1) {
+    _LOG_LEVEL = DEBUG;
+  } else {
+    _LOG_LEVEL = INFO;
   }
-  _LOG_LEVEL = ERROR;
-  auto port = atoi(argv[2]);
-  if (port <= 1 || port >= 65536) {
-    LOG_ERROR("Invalid ports. Use port between 1 to 65535")
-    EXIT
-  }
-  runClient(argv[1], port, std::string(argv[3]));
+
+  runClient(p.getArgumentValue("host"), std::stoi(p.getArgumentValue("port")),
+            p.getArgumentValue("name"));
 }
