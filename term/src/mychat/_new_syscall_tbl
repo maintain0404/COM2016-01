@@ -1,0 +1,6 @@
+601 common mychat_serve sys_mychat_serve
+# 602 common mychat_accept sys_mychat_accept
+603 common mychat_enter sys_mychat_connect
+605 common mychat_send sys_mychat_send
+604 common mychat_read sys_mychat_read
+# 606 common mychat_close sys_mychat_close
