@@ -14,7 +14,7 @@
 #include <vector>
 
 using Packet = std::variant<SendEnter, SendMessage>;
-using RecvPacket = std::variant<RecvMessage>;
+using RecvPacket = std::variant<RecvMessage, RecvNotice>;
 
 class Handle {
   Header parseHeader(Data &data, int &pos) {
@@ -68,6 +68,15 @@ class Handle {
     return msg;
   };
 
+  RecvNotice parseRecvNotice(Data &data, const Header &header, int &pos) {
+    RecvNotice ntc;
+
+    ntc.content =
+        std::string(data.data() + pos, data.data() + pos + header.size);
+    pos += sizeof(header.size);
+    return ntc;
+  };
+
 public:
   Packet feed(std::vector<uint8_t> &buffer) {
     if (buffer.size() < sizeof(Header)) {
@@ -103,6 +112,9 @@ public:
     case RECV_MESSAGE: {
       return parseRecvMessage(buffer, header, pos);
     }
+    case RECV_NOTICE: {
+      return parseRecvNotice(buffer, header, pos);
+    }
     default: {
       throw HandleReturn::INVALID_TYPE;
     }
@@ -130,6 +142,21 @@ public:
 
     return data;
   };
+
+  Data buildRecvNotice(RecvNotice &ntc) {
+    Data data;
+    int pos = 0;
+    Header header(RECV_NOTICE, ntc.size());
+    data.resize(sizeof(Header) + header.size);
+
+    std::memcpy(data.data() + pos, &header, sizeof(Header));
+    pos += sizeof(Header);
+
+    std::memcpy(data.data() + pos, ntc.content.c_str(), ntc.content.size());
+    pos += sizeof(ntc.content.size());
+
+    return data;
+  }
 };
 
 #endif

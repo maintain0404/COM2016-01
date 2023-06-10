@@ -6,7 +6,7 @@
 #include <variant>
 #include <vector>
 
-enum MessageType { ENTER, MESSAGE, RECV_MESSAGE };
+enum MessageType { ENTER, MESSAGE, RECV_MESSAGE, RECV_NOTICE };
 
 using Data = std::vector<uint8_t>;
 
@@ -51,5 +51,15 @@ public:
         content(content) {}
 
   int size() { return sizeof(name_size) + sender_name.size() + content.size(); }
+};
+
+class RecvNotice {
+public:
+  std::string content;
+
+  RecvNotice(){};
+  RecvNotice(std::string content) : content(content){};
+
+  int size() { return content.size(); };
 };
 #endif

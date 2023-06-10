@@ -28,11 +28,10 @@ public:
 
   Connection(int sock, std::function<void(int, std::vector<uint8_t>)> broadcast,
              std::function<bool(std::string)> checkExists,
-             std::function<void(int)> disconnect)
+             std::function<void(int)> disconnect, Handle &handle)
       : is_entered(false), sock(sock), broadcast(broadcast),
-        checkExists(checkExists), disconnect(disconnect), name("") {
-    this->handle = Handle();
-  };
+        checkExists(checkExists), disconnect(disconnect), handle(handle),
+        name(""){};
 
   void feed(std::vector<uint8_t> packet) {
     try {
@@ -46,8 +45,8 @@ public:
         if (!this->checkExists(new_name)) {
           std::string msg = "User " + std::get<SendEnter>(res).name +
                             " entered. Please say hello.";
-          auto recv = RecvMessage(new_name, msg);
-          this->broadcast(this->sock, this->handle.buildRecvMessage(recv));
+          auto ntc = RecvNotice(msg);
+          this->broadcast(this->sock, this->handle.buildRecvNotice(ntc));
           this->is_entered = true;
           this->name = new_name;
         } else {
@@ -84,6 +83,7 @@ private:
   int server_socket;
   int epoll_fd;
   epoll_event _epoll_event;
+  Handle handle;
 
   void registerEpoll() {
 
@@ -147,7 +147,7 @@ private:
                     std::to_string(res));
           return res;
         },
-        [&](int sock) { return disconnect(sock); });
+        [&](int sock) { return disconnect(sock); }, this->handle);
     clients.insert(std::make_pair(client_socket, conn));
     handleMessage(client_socket);
   }
@@ -179,7 +179,7 @@ public:
 
   Server(int port, int max_connection, int max_events)
       : port(port), max_connection(max_connection), max_events(max_events),
-        stopflag(false){};
+        stopflag(false), handle(Handle()){};
   Server &operator=(const Server &x) { return *this; };
 
   void runServer() {
@@ -235,7 +235,10 @@ public:
     uint8_t buffer[1024] = {0};
     val_read = read(fd, buffer, 1024);
     if (val_read == 0) {
-      disconnect(fd);
+      auto ntc = RecvNotice("User " + this->clients.find(fd)->second.name +
+                            " get out.");
+      this->broadcast(fd, this->handle.buildRecvNotice(ntc));
+      this->disconnect(fd);
       return;
     } else if (val_read < 0) {
       LOG_ERROR("Error in reading from client.");

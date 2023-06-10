@@ -26,22 +26,17 @@ inline int mychat_serve(int port, int max_conn) {
 
   sock = socket(AF_INET, SOCK_STREAM, 0);
   if (sock < 0) {
-    printf("Mychat:serve creating socket failed.\n");
     return sock;
   }
-  printf("Mychat:serve creating socket success\n");
 
   setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
   setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &sockopt, sizeof(sockopt));
 
   if (bind(sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
-    printf("Mychat:serve binding socket failed.\n");
     return MYCHAT_SERVE_ERR_SOCKET_BINDING_FAILED;
   };
-  printf("Mychat:serve binding socket success.\n");
 
   if (listen(sock, max_conn) < 0) {
-    printf("Mychat:serve listening failed\n");
     return MYCHAT_SERVE_ERR_SOCKET_LISTENING_FAILED;
   }
 
@@ -64,17 +59,13 @@ inline int mychat_enter(__CONST_SOCKADDR_ARG addr, socklen_t socksize) {
   int res;
   int sock = socket(AF_INET, SOCK_STREAM, 0);
   if (sock < 0) {
-    printf("Mychat:enter socket create failed\n");
     return MYCHAT_ENTER_SOCKET_CREATING_FAILED;
   }
-  printf("Mychat:enter creating socket success.\n");
 
   res = connect(sock, addr, socksize);
   if (res < 0) {
-    printf("Mychat:enter socket connect failed.\n");
     return MYCHAT_ENTER_SOCKET_CONNECTING_FAILED;
   }
-  printf("Mychat:enter connection success.\n");
 
   return sock;
 #else

@@ -44,15 +44,21 @@ void sendMessage(int socket, std::string message) {
   }
 }
 
-RecvMessage parseMessage(Data buffer) {
+void handleMessage(Data buffer) {
   if (buffer.size() < sizeof(Header)) {
     throw HandleReturn::SHORTER_THAN_HEADER;
   }
   auto recv = handle.parseRecv(buffer);
   if (std::holds_alternative<RecvMessage>(recv)) {
-    return std::get<RecvMessage>(recv);
-  } else {
-    throw 1;
+    auto msg = std::get<RecvMessage>(recv);
+
+    std::cout << "\033[33m" << msg.sender_name << "\033[0m : " << msg.content
+              << std::endl;
+  } else if (std::holds_alternative<RecvNotice>(recv)) {
+    auto msg = std::get<RecvNotice>(recv);
+
+    std::cout << "\033[36mNOTICE"
+              << "\033[0m : " << msg.content << std::endl;
   }
 }
 
@@ -89,8 +95,7 @@ void infinite(int socket) {
     memset(buffer, 0, 1024);
     bytes_received = mychat_recv(socket, buffer, 1024);
     if (bytes_received > 0) {
-      msg = parseMessage(Data(buffer, buffer + 1024));
-      std::cout << msg.sender_name << " : " << msg.content;
+      handleMessage(Data(buffer, buffer + 1024));
     } else if (bytes_received == 0) {
       LOG_ERROR("Server closed.");
       break;
